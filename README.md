@@ -3,7 +3,7 @@ A basic OpenGL visualizer for meshes and pointclouds.
 Uses Eigen matrices to store data, which is convenient for projects already using Eigen.
 
 Example of visualizer created using meshview:
-![Screenshot of smplx-viewer](https://github.com/sxyu/meshview/blob/master/readme-img/example.png?raw=true)
+![Screenshot of smplx-viewer](https://github.com/sxyu/meshview/blob/master/readme-img/smpl-visual.png?raw=true)
 Code: <https://github.com/sxyu/smplxpp/blob/master/main_viewer.cpp>
 
 From `example.cpp`:
