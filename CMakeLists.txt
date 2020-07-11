@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.11 )
+cmake_minimum_required( VERSION 3.3 )
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -10,18 +10,28 @@ if (POLICY CMP0072)
     cmake_policy(SET CMP0072 NEW)
 endif (POLICY CMP0072)
 
-
 project( meshview )
-option( MESHVIEW_USE_SYSTEM_EIGEN "Use system Eigen rather than the included Eigen submodule if available" ON )
+set(MESHVIEW_VERSION_MAJOR 0)
+set(MESHVIEW_VERSION_MINOR 0)
+set(MESHVIEW_VERSION_PATCH 1)
+set(MESHVIEW_VERSION ${MESHVIEW_VERSION_MAJOR}.${MESHVIEW_VERSION_MINOR}.${MESHVIEW_VERSION_PATCH})
+
+option( MESHVIEW_USE_SYSTEM_EIGEN
+    "Use system Eigen. If false, please set EIGEN_INCLUDE_DIR manually" ON )
+option( MESHVIEW_USE_SYSTEM_GLFW
+    "Use system glfw rather than the included glfw submodule if available" ON )
 option( MESHVIEW_BUILD_IMGUI "Build with Dear ImGui integrated GUI" ON )
 option( MESHVIEW_BUILD_EXAMPLE "Build the example program" ON )
+option( MESHVIEW_BUILD_INSTALL "Build the install target" ON )
+option( MESHVIEW_USE_FFAST_MATH "Use -ffast-math" OFF )
 
 set( CMAKE_CXX_STACK_SIZE "10000000" )
-set( CMAKE_CXX_STANDARD 17 )
+set( CMAKE_CXX_STANDARD 14 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON)
-set( CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake_modules" )
+set( CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" )
 
 set( INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include" )
+set( SRC_DIR "${PROJECT_SOURCE_DIR}/src" )
 set( VENDOR_DIR "${PROJECT_SOURCE_DIR}/3rdparty" )
 set( STB_DIR "${VENDOR_DIR}/stb" )
 set( IMGUI_DIR "${VENDOR_DIR}/imgui_mod" )
@@ -32,20 +42,17 @@ set( PROJ_LIB_NAME "meshview" )
 
 if ( CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang") )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations -O3 -funroll-loops -g" )
-    if( ${SMPLX_USE_FFAST_MATH} )
+    if( MESHVIEW_USE_FFAST_MATH )
         set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math" )
     endif()
 elseif( MSVC )
-    if( ${SMPLX_USE_FFAST_MATH} )
+    if( MESHVIEW_USE_FFAST_MATH )
         set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast" )
     endif()
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT /GLT /Ox")
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /MTd")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MT /GLT")
-    if (SMPLX_USE_CUDA)
-        set( CMAKE_CUDA_FLAGS_RELEASE "${CMAKE_CUDA_FLAGS_RELEASE} -Xcompiler=\"/MT\"" )
-    endif()
     # Silence deprecation warning coming from Eigen; silence secure warning
     add_definitions(-D_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING -D_CRT_SECURE_NO_WARNINGS)
 endif ( )
@@ -57,7 +64,7 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
     # Update submodules as needed
     option(GIT_SUBMODULE "Check submodules during build" ON)
     if(GIT_SUBMODULE)
-        message(STATUS "Running update --init --recursive")
+        message(STATUS "Running git submodule update --init --recursive")
         execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             RESULT_VARIABLE GIT_SUBMOD_RESULT)
@@ -72,16 +79,35 @@ if(NOT EXISTS "${GLFW_DIR}/CMakeLists.txt")
    message(FATAL_ERROR "A submodule as not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
 endif()
 
-file(GLOB SOURCES ${PROJECT_SOURCE_DIR}/*.cpp)
-file(GLOB_RECURSE HEADERS ${INCLUDE_DIR}/meshview/*.cpp)
+if ( MESHVIEW_BUILD_IMGUI )
+    message(STATUS "Building with Dear ImGui integrated GUI")
+    set (_MESHVIEW_IMGUI_ "")
+    file(GLOB IMGUI_SOURCES ${IMGUI_DIR}/*.cpp)
+else()
+    set (_MESHVIEW_IMGUI_ "//")
+    set( IMGUI_SOURCES )
+endif()
+
+add_definitions(-DGLEW_STATIC)
+
+file(GLOB MESHVIEW_SOURCES ${SRC_DIR}/*.cpp)
+file(GLOB MESHVIEW_PUBLIC_HEADERS ${INCLUDE_DIR}/meshview/*.hpp)
+file(GLOB MESHVIEW_PRIVATE_HEADERS ${INCLUDE_DIR}/meshview/internal/*.hpp)
+
+# create meshview.hpp
+set ( COMMON_HPP_PATH "${PROJECT_BINARY_DIR}/include/meshview/common.hpp" )
+configure_file( common.hpp.in "${COMMON_HPP_PATH}" )
+set ( MESHVIEW_PUBLIC_HEADERS ${MESHVIEW_PUBLIC_HEADERS} "${COMMON_HPP_PATH}")
+
+set ( MESHVIEW_HEADERS ${MESHVIEW_PUBLIC_HEADERS} ${MESHVIEW_PRIVATE_HEADERS} )
 
 set( MESHVIEW_VENDOR_SOURCES
     ${STB_DIR}/stb_image.cpp
     ${GLEW_DIR}/src/glew.c
 )
 
-source_group( "Header Files" FILES ${HEADERS} ${MESHVIEW_HEADERS} )
-source_group( "Source Files" FILES ${SOURCES} ${MESHVIEW_SOURCES} )
+source_group( "Header Files" FILES ${MESHVIEW_HEADERS} )
+source_group( "Source Files" FILES ${MESHVIEW_SOURCES} )
 
 set( DEPENDENCIES )
 
@@ -99,48 +125,86 @@ else()
     include_directories(${EIGEN_INCLUDE_DIR})
 endif()
 
-if ( MESHVIEW_BUILD_IMGUI )
-    message(STATUS "Building with Dear ImGui integrated GUI")
-    add_definitions( -DMESHVIEW_IMGUI )
-    file(GLOB IMGUI_SOURCES ${IMGUI_DIR}/*.cpp)
-else()
-    set( IMGUI_SOURCES )
-endif()
-
-
 include_directories(
     ${INCLUDE_DIR}
     ${STB_DIR}
     ${IMGUI_DIR}
     ${GLEW_DIR}/include
-    ${GLFW_DIR}/include
     ${PROJECT_BINARY_DIR}/include
 )
 
-# Build GLFW
-SET(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "GLFW example" FORCE)
-SET(GLFW_BUILD_TESTS OFF CACHE BOOL "GLFW tests" FORCE)
-SET(GLFW_BUILD_DOCS OFF CACHE BOOL "GLFW docs" FORCE)
-SET(GLFW_INSTALL OFF CACHE BOOL "GLFW install" FORCE)
-add_subdirectory(${GLFW_DIR})
-
 find_package(OpenGL REQUIRED)
-set( DEPENDENCIES ${DEPENDENCIES} OpenGL::GL glfw)
+set( DEPENDENCIES ${DEPENDENCIES} OpenGL::GL )
+
+set ( WILL_USE_SYSTEM_GLFW ${MESHVIEW_USE_SYSTEM_GLFW} )
+
+find_package(PkgConfig)
+if ( NOT PkgConfig_FOUND )
+    set ( WILL_USE_SYSTEM_GLFW OFF )
+else()
+    pkg_check_modules(GLFW glfw3)
+    if ( NOT GLFW_FOUND )
+        set ( WILL_USE_SYSTEM_GLFW OFF )
+    endif ()
+endif ()
+
+if ( NOT WILL_USE_SYSTEM_GLFW )
+    message ( STATUS "Using included glfw3 (in 3rdparty/)" )
+    # Build GLFW
+    SET(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "GLFW example" FORCE)
+    SET(GLFW_BUILD_TESTS OFF CACHE BOOL "GLFW tests" FORCE)
+    SET(GLFW_BUILD_DOCS OFF CACHE BOOL "GLFW docs" FORCE)
+    SET(GLFW_INSTALL ${MESHVIEW_BUILD_INSTALL} CACHE BOOL "GLFW install" FORCE)
+    add_subdirectory(${GLFW_DIR})
+    set( DEPENDENCIES ${DEPENDENCIES} glfw )
+    include_directories( "${GLFW_DIR}/include" )
+else()
+    message ( STATUS "Using system glfw3" )
+    set( DEPENDENCIES ${DEPENDENCIES} PRIVATE glfw )
+endif()
 
 find_package(Threads REQUIRED)
 
-add_library( ${PROJ_LIB_NAME} STATIC ${SOURCES} ${IMGUI_SOURCES} ${MESHVIEW_VENDOR_SOURCES} )
+add_library( ${PROJ_LIB_NAME} STATIC ${MESHVIEW_SOURCES}
+    ${IMGUI_SOURCES} ${MESHVIEW_VENDOR_SOURCES} )
 target_link_libraries( ${PROJ_LIB_NAME}
     ${CMAKE_THREAD_LIBS_INIT}
     ${DEPENDENCIES}
 )
-install(TARGETS ${MESHVIEW_NAME} DESTINATION lib)
+
+if (MESHVIEW_BUILD_INSTALL)
+    if ( NOT WILL_USE_SYSTEM_GLFW )
+        # Ugly hack
+        export(TARGETS glfw
+               NAMESPACE
+               FILE "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/glfwConfig.cmake")
+    endif()
+    set_target_properties( ${PROJ_LIB_NAME} PROPERTIES
+        PUBLIC_HEADER "${MESHVIEW_PUBLIC_HEADERS}"
+    )
+
+    include(GNUInstallDirs)
+    install(TARGETS ${PROJ_LIB_NAME}
+            EXPORT ${PROJ_LIB_NAME}Targets
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/meshview
+    )
+    export(TARGETS ${PROJ_LIB_NAME}
+           NAMESPACE meshview::
+           FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJ_LIB_NAME}Config.cmake")
+    install(EXPORT
+                ${PROJ_LIB_NAME}Targets
+                DESTINATION "${CMAKE_INSTALL_DATADIR}/meshview/cmake"
+                NAMESPACE meshview::
+            )
+        install(FILES "${SRC_DIR}/cmake/meshviewConfig.cmake"
+            DESTINATION "${CMAKE_INSTALL_DATADIR}/meshview/cmake")
+endif(MESHVIEW_BUILD_INSTALL)
 
 if (MESHVIEW_BUILD_EXAMPLE)
     add_executable( example example.cpp )
     target_link_libraries( example ${PROJ_LIB_NAME} )
-    set_target_properties( example PROPERTIES OUTPUT_NAME "meshview" )
-    install(TARGETS example DESTINATION bin)
+    set_target_properties( example PROPERTIES OUTPUT_NAME "meshview-example" )
 endif()
 
 if(WIN32)

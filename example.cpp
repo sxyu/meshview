@@ -1,4 +1,4 @@
-#include "meshview/viewer.hpp"
+#include "meshview/meshview.hpp"
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 #include <iostream>
@@ -6,17 +6,21 @@
 using namespace meshview;
 
 int main(int argc, char** argv) {
-    meshview::Viewer viewer;
+    Viewer viewer;
     viewer.draw_axes = true;
     // Adjust camera
     viewer.camera.dist_to_center = 5.f;
-    // Adjust lights?
+    // viewer.camera.center_of_rot = Vector3f();
+
+    // Here's how to adjust lighting
+    // viewer.light_pos = Vector3f()
     // viewer.light_color_ambient = Vector3f();
+    // viewer.light_color_diffuse = Vector3f();
+    // viewer.light_color_specular = Vector3f();
 
     // ** Some primitives
-    // * Rawing a line
-    auto& line =
-        viewer.add_line(Vector3f(-1.f, 1.f, 1.f), Vector3f::Ones(),
+    // * Draw line
+    auto& line = viewer.add_line(Vector3f(-1.f, 1.f, 1.f), Vector3f::Ones(),
                         /*color*/ Vector3f(1.f, 1.f, 0.f));
 
     // * Textured cube
@@ -163,22 +167,25 @@ int main(int argc, char** argv) {
         // Specular texture (reusing from above)
         .add_texture<Texture::TYPE_SPECULAR>(mat_spec, /* channels */ 3);
 
-    // * Events
+    // * Events: key handler
     viewer.on_key = [&](int button, input::Action action, int mods) -> bool {
-        if (button == 'D' && action != input::Action::release) {
-            // Press D to make textured pyramid go right
-            pyra3.translate(Vector3f(0.05f, 0.f, 0.f));
-        }
-        if (button == 'D' && action != input::Action::release) {
-            // Press E to make textured pyramid's top vertex become larger
-            pyra3.verts_pos()(4, 2) += 0.1f;
-            // In order to update mesh, we need to use:
-            pyra3.update();
-            // OR if we are in on_loop or on_gui event we can return true
-            // to update all
+        if (action != input::Action::release) {
+            if (button == 'D') {
+                // Press D to make textured pyramid go right
+                pyra3.translate(Vector3f(0.05f, 0.f, 0.f));
+            }
+            else if (button == 'E') {
+                // Press E to make textured pyramid's top vertex become larger
+                pyra3.verts_pos()(4, 2) += 0.1f;
+                // In order to update mesh, we need to use:
+                pyra3.update();
+                // OR if we are in on_loop or on_gui event we can return true
+                // to update all
+            }
         }
         return true; // Don't prevent default
     };
+    // * Events: loop callback
     viewer.on_loop = [&]() -> bool {
         return false; // True to update all meshes and camera
     };

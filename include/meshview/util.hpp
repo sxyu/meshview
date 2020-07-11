@@ -1,9 +1,9 @@
 #pragma once
-#ifndef VIEWER_UTIL_67A492E2_6CCA_4FA8_9763_90A5DA4F6837
-#define VIEWER_UTIL_67A492E2_6CCA_4FA8_9763_90A5DA4F6837
+#ifndef MESHVIEW_UTIL_67A492E2_6CCA_4FA8_9763_90A5DA4F6837
+#define MESHVIEW_UTIL_67A492E2_6CCA_4FA8_9763_90A5DA4F6837
 
 #include <string>
-#include "common.hpp"
+#include "meshview/common.hpp"
 
 #define _MESHVIEW_ASSERT(x) do { \
     if (!(x)) { \
@@ -84,4 +84,4 @@ Eigen::Matrix<Index, Eigen::Dynamic, 1> make_uv_to_vert_map(
 }  // namespace util
 }  // namespace meshview
 
-#endif  // ifndef VIEWER_UTIL_67A492E2_6CCA_4FA8_9763_90A5DA4F6837
+#endif  // ifndef MESHVIEW_UTIL_67A492E2_6CCA_4FA8_9763_90A5DA4F6837

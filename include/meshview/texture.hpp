@@ -2,7 +2,7 @@
 #ifndef MESHVIEW_TEXTURE_4C9E53AB_10FA_4057_8EDB_1E117271A1C3
 #define MESHVIEW_TEXTURE_4C9E53AB_10FA_4057_8EDB_1E117271A1C3
 
-#include "common.hpp"
+#include "meshview/common.hpp"
 #include <string>
 
 namespace meshview {

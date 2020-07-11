@@ -1,11 +1,11 @@
 #pragma once
-#ifndef VIEWER_SHADER_9845A71E_0422_44A7_9AF9_FAC46ECE9C40
-#define VIEWER_SHADER_9845A71E_0422_44A7_9AF9_FAC46ECE9C40
+#ifndef MESHVIEW_SHADER_9845A71E_0422_44A7_9AF9_FAC46ECE9C40
+#define MESHVIEW_SHADER_9845A71E_0422_44A7_9AF9_FAC46ECE9C40
 
 #include <string>
 #include <cstdint>
 
-#include "common.hpp"
+#include "meshview/common.hpp"
 
 namespace meshview {
 
@@ -52,4 +52,4 @@ public:
 
 }  // namespace meshview
 
-#endif  // ifndef VIEWER_SHADER_9845A71E_0422_44A7_9AF9_FAC46ECE9C40
+#endif  // ifndef MESHVIEW_SHADER_9845A71E_0422_44A7_9AF9_FAC46ECE9C40
