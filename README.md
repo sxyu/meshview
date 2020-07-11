@@ -1,5 +1,15 @@
-### Easy C++ mesh + point cloud visualizer
-Basic OpenGL visualizer for meshes and pointclouds, supporting
+### C++ mesh + point cloud visualizer
+A basic OpenGL visualizer for meshes and pointclouds.
+Uses Eigen matrices to store data, which is convenient for projects already using Eigen.
+
+Example of visualizer created using meshview:
+![Screenshot of smplx-viewer](https://github.com/sxyu/meshview/blob/master/readme-img/example.png?raw=true)
+Code: <https://github.com/sxyu/smplxpp/blob/master/main_viewer.cpp>
+
+From `example.cpp`:
+![Screenshot of example](https://github.com/sxyu/meshview/blob/master/readme-img/example.png?raw=true)
+
+### Features
 - Drawing meshes (using phong lighting model)
     - Coloring mesh via texture mapping
         - Diffuse and specular textures
@@ -10,10 +20,12 @@ Basic OpenGL visualizer for meshes and pointclouds, supporting
 - Drawing several geometric objects (line, cube, square, [UV] sphere) directly
 - Controlling camera and lighting
 - RGB/XYZ axes
+- Optionally includes Dear ImGUI which can be used without any additional setup, by
+    writing ImGui calls (like ImGui::Begin()) in the `viewer.on_gui` event handler  
 
 Note this project does not support importing/exporting models, and is
-intended for visualizing specific models and programmatically generated objects,
-e.g. in 3D vision. For model I/O please look into integrating assimp.
+mostly intended for visualizing programmatically generated objects.
+For model I/O please look into integrating assimp.
 
 ```cpp
 #include "meshview/meshview.hpp"
@@ -34,6 +46,8 @@ See `example.cpp` for usage examples.
 ### External dependencies
 - OpenGL 3+
 - C++14
+- Eigen 3.3 or 3.4 beta
+
 ### Build
 Use CMake in the usual way.
 `mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release`
