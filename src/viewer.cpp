@@ -1,4 +1,4 @@
-#include "meshview/viewer.hpp"
+#include "meshview/meshview.hpp"
 
 #include <iostream>
 
@@ -7,6 +7,7 @@
 #include <Eigen/Geometry>
 
 #include "meshview/util.hpp"
+#include "meshview/internal/shader.hpp"
 // Inlined shader code
 #include "meshview/internal/shader_inline.hpp"
 
@@ -246,9 +247,10 @@ void Viewer::show() {
 #endif
 
     // Compile shaders on-the-fly
-    Shader shader_mesh(MESH_VERTEX_SHADER, MESH_FRAGMENT_SHADER);
-    Shader shader_mesh_vert_color(MESH_VERTEX_SHADER_VERT_COLOR, MESH_FRAGMENT_SHADER_VERT_COLOR);
-    Shader shader_pc(POINTCLOUD_VERTEX_SHADER, POINTCLOUD_FRAGMENT_SHADER);
+    internal::Shader shader_mesh(MESH_VERTEX_SHADER, MESH_FRAGMENT_SHADER);
+    internal::Shader shader_mesh_vert_color(
+            MESH_VERTEX_SHADER_VERT_COLOR, MESH_FRAGMENT_SHADER_VERT_COLOR);
+    internal::Shader shader_pc(POINTCLOUD_VERTEX_SHADER, POINTCLOUD_FRAGMENT_SHADER);
 
     // Construct axes object
     PointCloud axes(Eigen::template Map<const Points>{axes_verts, 6, 3},
@@ -274,7 +276,7 @@ void Viewer::show() {
     for (auto& mesh : meshes) mesh->update(true);
     for (auto& pc : point_clouds) pc->update(true);
 
-    auto set_light_and_camera = [&](const Shader& shader) {
+    auto set_light_and_camera = [&](const internal::Shader& shader) {
         shader.set_vec3("light.ambient", light_color_ambient);
         shader.set_vec3("light.diffuse", light_color_diffuse);
         shader.set_vec3("light.specular", light_color_specular);
@@ -295,16 +297,16 @@ void Viewer::show() {
         axes.enable(draw_axes);
 
         shader_pc.use();
-        axes.draw(shader_pc, camera);
+        axes.draw(shader_pc.id, camera);
         for (auto& pc : point_clouds) {
-            pc->draw(shader_pc, camera);
+            pc->draw(shader_pc.id, camera);
         }
 
         shader_mesh.use();
         set_light_and_camera(shader_mesh);
         for (auto& mesh : meshes) {
             if (mesh->shading_type == Mesh::ShadingType::texture) {
-                mesh->draw(shader_mesh, camera);
+                mesh->draw(shader_mesh.id, camera);
             }
         }
 
@@ -312,7 +314,7 @@ void Viewer::show() {
         set_light_and_camera(shader_mesh_vert_color);
         for (auto& mesh : meshes) {
             if (mesh->shading_type == Mesh::ShadingType::vertex) {
-                mesh->draw(shader_mesh_vert_color, camera);
+                mesh->draw(shader_mesh_vert_color.id, camera);
             }
         }
 

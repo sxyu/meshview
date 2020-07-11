@@ -31,6 +31,16 @@ using Vector = Eigen::Matrix<float, Eigen::Dynamic, 1>;
 
 using Triangles = Eigen::Matrix<Index, Eigen::Dynamic, 3, Eigen::RowMajor>;
 
+using Image = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+using ImageU = Eigen::Matrix<uint8_t, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+
+namespace input {
+// Key/button action
+enum class Action {
+    release, press, repeat
+};
+}  // namespace input
+
 }
 
 #endif  // ifndef MESHVIEW_COMMON_93D99C8D_E8CA_4FFE_9716_D8237925F910

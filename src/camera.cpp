@@ -1,4 +1,4 @@
-#include "meshview/camera.hpp"
+#include "meshview/meshview.hpp"
 
 #include <iostream>
 #include <Eigen/Geometry>

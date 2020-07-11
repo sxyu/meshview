@@ -1,9 +1,10 @@
-#include "meshview/texture.hpp"
+#include "meshview/meshview.hpp"
 
 #include <iostream>
 #include <GL/glew.h>
 #include "stb_image.h"
 #include "meshview/util.hpp"
+#include "meshview/internal/assert.hpp"
 
 namespace meshview {
 

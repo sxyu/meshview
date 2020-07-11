@@ -3,30 +3,19 @@
 #define MESHVIEW_SHADER_9845A71E_0422_44A7_9AF9_FAC46ECE9C40
 
 #include <string>
-#include <cstdint>
-
 #include "meshview/common.hpp"
 
 namespace meshview {
+namespace internal {
 
 class Shader {
 public:
-    Shader();
-
+    // Load existing shader from id
+    explicit Shader(Index id);
     // Load shader on construction from code
     Shader(const std::string& vertex_code,
            const std::string& fragment_code,
            const std::string& geometry_code = "");
-
-    // Generates the shader on the fly from file
-    void load(const std::string& vertex_path,
-           const std::string& fragment_path,
-           const std::string& geometry_path = "");
-    // Generates the shader on the fly from code
-    void compile(const std::string& vertex_code,
-                 const std::string& fragment_code,
-                 const std::string& geometry_code = "");
-
     // Activate the shader
     void use();
 
@@ -50,6 +39,7 @@ public:
     Index id;
 };
 
+}  // namespace internal
 }  // namespace meshview
 
 #endif  // ifndef MESHVIEW_SHADER_9845A71E_0422_44A7_9AF9_FAC46ECE9C40

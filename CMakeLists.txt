@@ -83,7 +83,16 @@ if ( MESHVIEW_BUILD_IMGUI )
     message(STATUS "Building with Dear ImGui integrated GUI")
     set (_MESHVIEW_IMGUI_ "")
     file(GLOB IMGUI_SOURCES ${IMGUI_DIR}/meshview/imgui/*.cpp)
-    file(GLOB IMGUI_HEADERS ${IMGUI_DIR}/meshview/imgui/*.h)
+    set(IMGUI_HEADERS
+            ${IMGUI_DIR}/meshview/imgui/imconfig.h
+            ${IMGUI_DIR}/meshview/imgui/imgui.h
+            ${IMGUI_DIR}/meshview/imgui/imgui_impl_glfw.h
+            ${IMGUI_DIR}/meshview/imgui/imgui_impl_opengl3.h
+            ${IMGUI_DIR}/meshview/imgui/imgui_stdlib.h
+            ${IMGUI_DIR}/meshview/imgui/imstb_rectpack.h
+            ${IMGUI_DIR}/meshview/imgui/imstb_textedit.h
+            ${IMGUI_DIR}/meshview/imgui/imstb_truetype.h
+        )
 else()
     message(STATUS "Dear ImGui integrated GUI disabled")
     set (_MESHVIEW_IMGUI_ "//")
@@ -185,9 +194,6 @@ if (MESHVIEW_BUILD_INSTALL)
                NAMESPACE
                FILE "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/glfwConfig.cmake")
     endif()
-    if (MESHVIEW_BUILD_IMGUI)
-        set (MESHVIEW_PUBLIC_HEADERS ${MESHVIEW_PUBLIC_HEADERS})
-    endif()
     set_target_properties( ${PROJ_LIB_NAME} PROPERTIES
         PUBLIC_HEADER "${MESHVIEW_PUBLIC_HEADERS}"
     )
@@ -208,8 +214,10 @@ if (MESHVIEW_BUILD_INSTALL)
             )
     install(FILES "${SRC_DIR}/cmake/meshviewConfig.cmake"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/meshview/cmake")
-    install(FILES ${IMGUI_HEADERS}
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/meshview/imgui")
+    if (MESHVIEW_BUILD_IMGUI)
+        install(FILES ${IMGUI_HEADERS}
+            DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/meshview/imgui")
+    endif()
 endif(MESHVIEW_BUILD_INSTALL)
 
 if (MESHVIEW_BUILD_EXAMPLE)

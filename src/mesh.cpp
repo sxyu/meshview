@@ -1,16 +1,18 @@
-#include "meshview/mesh.hpp"
+#include "meshview/meshview.hpp"
 
 #include <iostream>
 #include <GL/glew.h>
 #include <Eigen/Geometry>
 
 #include "meshview/util.hpp"
+#include "meshview/internal/shader.hpp"
+#include "meshview/internal/assert.hpp"
 
 namespace meshview {
 namespace {
 
 void shader_set_transform_matrices(
-        const Shader& shader, const Camera& camera, const Matrix4f& transform) {
+        const internal::Shader& shader, const Camera& camera, const Matrix4f& transform) {
     shader.set_mat4("M", transform);
     shader.set_mat4("MVP", camera.proj * camera.view * transform);
 
@@ -73,12 +75,13 @@ Mesh::Mesh(const Eigen::Ref<const Points>& pos,
 
 Mesh::~Mesh() { free_bufs(); }
 
-void Mesh::draw(const Shader& shader, const Camera& camera) {
+void Mesh::draw(Index shader_id, const Camera& camera) {
     if (!enabled || data.rows() == 0) return;
     if (!~VAO) {
         std::cerr << "ERROR: Please call meshview::Mesh::update() before Mesh::draw()\n";
         return;
     }
+    internal::Shader shader(shader_id);
 
     if (shading_type == ShadingType::texture) {
         // Bind appropriate textures
@@ -424,12 +427,13 @@ void PointCloud::update(bool force_init) {
     glBindVertexArray(0);
 }
 
-void PointCloud::draw(const Shader& shader, const Camera& camera) {
+void PointCloud::draw(Index shader_id, const Camera& camera) {
     if (!enabled) return;
     if (!~VAO) {
         std::cerr << "ERROR: Please call meshview::PointCloud::update() before PointCloud::draw()\n";
         return;
     }
+    internal::Shader shader(shader_id);
 
     // Set point size
     glPointSize(point_size);

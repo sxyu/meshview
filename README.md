@@ -6,7 +6,7 @@ Example of visualizer created using meshview:
 ![Screenshot of smplx-viewer](https://github.com/sxyu/meshview/blob/master/readme-img/smpl-visual.png?raw=true)
 Code: <https://github.com/sxyu/smplxpp/blob/master/main_viewer.cpp>
 
-Azure Kinect camera point cloud visualiztion:
+Azure Kinect camera point cloud visualization:
 ![Screenshot of pcview (depth map viewer)](https://github.com/sxyu/meshview/blob/master/readme-img/depth-cam.png?raw=true)
 
 Scene from `example.cpp`:

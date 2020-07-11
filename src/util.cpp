@@ -5,6 +5,7 @@
 #include <Eigen/Geometry>
 
 #include "meshview/common.hpp"
+#include "meshview/internal/assert.hpp"
 
 namespace meshview {
 namespace util {

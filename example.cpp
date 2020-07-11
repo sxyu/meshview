@@ -25,8 +25,8 @@ int main(int argc, char** argv) {
                         /*color*/ Vector3f(1.f, 1.f, 0.f));
 
     // * Textured cube
-    Texture::Image mat(256, 256 * 3 /*channels*/);
-    Texture::Image mat_spec(256, 256 * 3 /*channels*/);
+    Image mat(256, 256 * 3 /*channels*/);
+    Image mat_spec(256, 256 * 3 /*channels*/);
     for (int i = 0; i < 256; ++i) {
         for (int j = 0; j < 256; ++j) {
             // Manually generate texture image
@@ -200,7 +200,7 @@ int main(int argc, char** argv) {
         return false; // True to update all meshes and camera
     };
 #else
-    std::cout << "meshview was built without Dear ImGUI, no GUI will be availablek\n";
+    std::cout << "meshview was built without Dear ImGUI, no GUI will be available\n";
 #endif
     viewer.show();
 }
