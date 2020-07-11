@@ -168,7 +168,7 @@ find_package(Threads REQUIRED)
 
 add_library( ${PROJ_LIB_NAME} STATIC ${MESHVIEW_SOURCES}
     ${IMGUI_SOURCES} ${MESHVIEW_VENDOR_SOURCES} )
-target_link_libraries( ${PROJ_LIB_NAME}
+target_link_libraries( ${PROJ_LIB_NAME} PUBLIC
     ${CMAKE_THREAD_LIBS_INIT}
     ${DEPENDENCIES}
 )
