@@ -11,8 +11,8 @@
 #include "meshview/internal/shader_inline.hpp"
 
 #ifdef MESHVIEW_IMGUI
-#include "imgui_impl_opengl3.h"
-#include "imgui_impl_glfw.h"
+#include "meshview_imgui/imgui_impl_opengl3.h"
+#include "meshview_imgui/imgui_impl_glfw.h"
 #endif
 
 namespace meshview {

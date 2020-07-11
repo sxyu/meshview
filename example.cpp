@@ -1,4 +1,5 @@
 #include "meshview/meshview.hpp"
+#include "meshview/meshview_imgui.hpp"
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 #include <iostream>
@@ -189,5 +190,17 @@ int main(int argc, char** argv) {
     viewer.on_loop = [&]() -> bool {
         return false; // True to update all meshes and camera
     };
+#ifdef MESHVIEW_IMGUI
+    viewer.on_gui = [&]() -> bool {
+        ImGui::SetNextWindowSize(ImVec2(200, 100));
+        ImGui::Begin("Hello");
+        ImGui::Text("Hello world");
+        ImGui::Button("Panic button");
+        ImGui::End();
+        return false; // True to update all meshes and camera
+    };
+#else
+    std::cout << "meshview was built without Dear ImGUI, no GUI will be availablek\n";
+#endif
     viewer.show();
 }

@@ -82,11 +82,13 @@ endif()
 if ( MESHVIEW_BUILD_IMGUI )
     message(STATUS "Building with Dear ImGui integrated GUI")
     set (_MESHVIEW_IMGUI_ "")
-    file(GLOB IMGUI_SOURCES ${IMGUI_DIR}/*.cpp)
+    file(GLOB IMGUI_SOURCES ${IMGUI_DIR}/meshview_imgui/*.cpp)
+    file(GLOB IMGUI_HEADERS ${IMGUI_DIR}/meshview_imgui/*.h)
 else()
     message(STATUS "Dear ImGui integrated GUI disabled")
     set (_MESHVIEW_IMGUI_ "//")
     set( IMGUI_SOURCES )
+    set (IMGUI_HEADERS )
 endif()
 
 add_definitions(-DGLEW_STATIC)
@@ -129,7 +131,6 @@ endif()
 include_directories(
     ${INCLUDE_DIR}
     ${STB_DIR}
-    ${IMGUI_DIR}
     ${GLEW_DIR}/include
     ${PROJECT_BINARY_DIR}/include
 )
@@ -161,7 +162,7 @@ if ( NOT WILL_USE_SYSTEM_GLFW )
     include_directories( "${GLFW_DIR}/include" )
 else()
     message ( STATUS "Using system glfw3" )
-    set( DEPENDENCIES ${DEPENDENCIES} PRIVATE glfw )
+    set( DEPENDENCIES ${DEPENDENCIES} glfw3 )
 endif()
 
 find_package(Threads REQUIRED)
@@ -169,9 +170,13 @@ find_package(Threads REQUIRED)
 add_library( ${PROJ_LIB_NAME} STATIC ${MESHVIEW_SOURCES}
     ${IMGUI_SOURCES} ${MESHVIEW_VENDOR_SOURCES} )
 target_link_libraries( ${PROJ_LIB_NAME} PUBLIC
-    ${CMAKE_THREAD_LIBS_INIT}
     ${DEPENDENCIES}
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${CMAKE_DL_LIBS}
 )
+if (MESHVIEW_BUILD_IMGUI)
+    include_directories( ${IMGUI_DIR})
+endif()
 
 if (MESHVIEW_BUILD_INSTALL)
     if ( NOT WILL_USE_SYSTEM_GLFW )
@@ -179,6 +184,9 @@ if (MESHVIEW_BUILD_INSTALL)
         export(TARGETS glfw
                NAMESPACE
                FILE "${CMAKE_CURRENT_BINARY_DIR}/3rdparty/glfwConfig.cmake")
+    endif()
+    if (MESHVIEW_BUILD_IMGUI)
+        set (MESHVIEW_PUBLIC_HEADERS ${MESHVIEW_PUBLIC_HEADERS})
     endif()
     set_target_properties( ${PROJ_LIB_NAME} PROPERTIES
         PUBLIC_HEADER "${MESHVIEW_PUBLIC_HEADERS}"
@@ -198,8 +206,10 @@ if (MESHVIEW_BUILD_INSTALL)
                 DESTINATION "${CMAKE_INSTALL_DATADIR}/meshview/cmake"
                 NAMESPACE meshview::
             )
-        install(FILES "${SRC_DIR}/cmake/meshviewConfig.cmake"
-            DESTINATION "${CMAKE_INSTALL_DATADIR}/meshview/cmake")
+    install(FILES "${SRC_DIR}/cmake/meshviewConfig.cmake"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/meshview/cmake")
+    install(FILES ${IMGUI_HEADERS}
+        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/meshview_imgui")
 endif(MESHVIEW_BUILD_INSTALL)
 
 if (MESHVIEW_BUILD_EXAMPLE)
