@@ -376,7 +376,7 @@ Mesh& Viewer::add_cube(const Eigen::Ref<const Vector3f>& cen,
     cube.verts_pos().rowwise() += cen.transpose();
     cube.verts_pos() *= side_len;
     return add_mesh(std::move(cube))
-        .template add_texture(color[0], color[1], color[2])
+        .add_texture(color[0], color[1], color[2])
         .template add_texture<Texture::TYPE_SPECULAR>(color[0], color[1], color[2]);
 }
 
@@ -387,7 +387,7 @@ Mesh& Viewer::add_square(const Eigen::Ref<const Vector3f>& cen,
     sqr.verts_pos().rowwise() += cen.transpose();
     sqr.verts_pos() *= side_len;
     return add_mesh(std::move(sqr))
-        .template add_texture(color[0], color[1], color[2])
+        .add_texture(color[0], color[1], color[2])
         .template add_texture<Texture::TYPE_SPECULAR>(color[0], color[1], color[2]);
 }
 
@@ -400,7 +400,7 @@ Mesh& Viewer::add_sphere(const Eigen::Ref<const Vector3f>& cen,
     sph.verts_pos() *= radius;
     return add_mesh(std::move(sph))
         .set_shininess(32.f)
-        .template add_texture(color[0], color[1], color[2])
+        .add_texture(color[0], color[1], color[2])
         .template add_texture<Texture::TYPE_SPECULAR>(color[0], color[1], color[2]);
 }
 

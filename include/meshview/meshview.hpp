@@ -8,6 +8,7 @@
 #include <string>
 #include <cstdint>
 #include <cstddef>
+#include <cmath>
 #include <memory>
 
 namespace meshview {

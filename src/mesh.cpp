@@ -1,5 +1,6 @@
 #include "meshview/meshview.hpp"
 
+#include <cmath>
 #include <iostream>
 #include <GL/glew.h>
 #include <Eigen/Geometry>

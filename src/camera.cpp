@@ -1,5 +1,6 @@
 #include "meshview/meshview.hpp"
 
+#include <cmath>
 #include <iostream>
 #include <Eigen/Geometry>
 
