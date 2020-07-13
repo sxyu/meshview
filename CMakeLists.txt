@@ -28,11 +28,11 @@ option( MESHVIEW_USE_FFAST_MATH "Use -ffast-math" OFF )
 set( CMAKE_CXX_STACK_SIZE "10000000" )
 set( CMAKE_CXX_STANDARD 14 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON)
-set( CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" )
+set( CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
 
-set( INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include" )
-set( SRC_DIR "${PROJECT_SOURCE_DIR}/src" )
-set( VENDOR_DIR "${PROJECT_SOURCE_DIR}/3rdparty" )
+set( INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+set( SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src" )
+set( VENDOR_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty" )
 set( STB_DIR "${VENDOR_DIR}/stb" )
 set( IMGUI_DIR "${VENDOR_DIR}/imgui_mod" )
 set( GLFW_DIR "${VENDOR_DIR}/glfw" )
@@ -138,10 +138,8 @@ else()
 endif()
 
 include_directories(
-    ${INCLUDE_DIR}
     ${STB_DIR}
     ${GLEW_DIR}/include
-    ${PROJECT_BINARY_DIR}/include
 )
 
 find_package(OpenGL REQUIRED)
@@ -178,14 +176,24 @@ find_package(Threads REQUIRED)
 
 add_library( ${PROJ_LIB_NAME} STATIC ${MESHVIEW_SOURCES}
     ${IMGUI_SOURCES} ${MESHVIEW_VENDOR_SOURCES} )
+
+target_include_directories(
+    ${PROJ_LIB_NAME} PUBLIC
+    $<BUILD_INTERFACE:${INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+if (MESHVIEW_BUILD_IMGUI)
+    target_include_directories(
+        ${PROJ_LIB_NAME} PUBLIC
+        $<BUILD_INTERFACE:${IMGUI_DIR}>
+    )
+endif()
 target_link_libraries( ${PROJ_LIB_NAME} PUBLIC
     ${DEPENDENCIES}
     ${CMAKE_THREAD_LIBS_INIT}
     ${CMAKE_DL_LIBS}
 )
-if (MESHVIEW_BUILD_IMGUI)
-    include_directories( ${IMGUI_DIR})
-endif()
 
 if (MESHVIEW_BUILD_INSTALL)
     if ( NOT WILL_USE_SYSTEM_GLFW )
