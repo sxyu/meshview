@@ -380,8 +380,11 @@ void Mesh::save_basic_obj(const std::string& path) const {
     std::ofstream ofs(path);
     for (int i = 0; i < data.rows(); ++i) {
         ofs << "v";
+        // Transform point
+        Vector4f v =
+            transform * data.block<1, 3>(i, 0).transpose().homogeneous();
         for (int j = 0; j < 3; ++j) {
-            ofs << " " << data(i, j);
+            ofs << " " << v(j);
         }
         if (shading_type == ShadingType::vertex) {
             for (int j = 3; j < 6; ++j) {

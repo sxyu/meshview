@@ -20,31 +20,23 @@ namespace meshview {
 namespace {
 // Axes data
 const float AXIS_LEN = 0.5f;
-const float axes_verts[] =  {
-     0.0f, 0.0f, 0.0f,
-     AXIS_LEN, 0.0f, 0.0f,
-     0.0f, 0.0f, 0.0f,
-     0.0f, AXIS_LEN, 0.0f,
-     0.0f, 0.0f, 0.0f,
-     0.0f, 0.0f, AXIS_LEN
-};
-const float axes_rgb[] =  {
-    1.0f, 0.0f, 0.0f,
-    1.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 1.0f,
-    0.0f, 0.0f, 1.0f
-};
+const float axes_verts[] = {0.0f, 0.0f, 0.0f, AXIS_LEN, 0.0f,     0.0f,
+                            0.0f, 0.0f, 0.0f, 0.0f,     AXIS_LEN, 0.0f,
+                            0.0f, 0.0f, 0.0f, 0.0f,     0.0f,     AXIS_LEN};
+const float axes_rgb[] = {1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+                          0.0f, 1.0f, 0.0f, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 1.0f};
 
-void error_callback(int error, const char *description) {
+void error_callback(int error, const char* description) {
     std::cerr << description << "\n";
 }
 
-void win_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    meshview::Viewer& viewer = *reinterpret_cast<meshview::Viewer*>(
-            glfwGetWindowUserPointer(window));
-    if(viewer.on_key && !viewer.on_key(key, (meshview::input::Action)action, mods)) return;
+void win_key_callback(GLFWwindow* window, int key, int scancode, int action,
+                      int mods) {
+    meshview::Viewer& viewer =
+        *reinterpret_cast<meshview::Viewer*>(glfwGetWindowUserPointer(window));
+    if (viewer.on_key &&
+        !viewer.on_key(key, (meshview::input::Action)action, mods))
+        return;
 
 #ifdef MESHVIEW_IMGUI
     ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
@@ -52,70 +44,80 @@ void win_key_callback(GLFWwindow* window, int key, int scancode, int action, int
 #endif
 
     if (action == GLFW_PRESS) {
-        switch(key) {
-            case GLFW_KEY_ESCAPE: case 'Q':
-                glfwSetWindowShouldClose(window, GL_TRUE); break;
-            case 'Z': viewer.camera.reset_view(); break;
+        switch (key) {
+            case GLFW_KEY_ESCAPE:
+            case 'Q':
+                glfwSetWindowShouldClose(window, GL_TRUE);
+                break;
+            case 'Z':
+                viewer.camera.reset_view();
+                break;
+            case 'O':
+                viewer.camera.ortho = !viewer.camera.ortho;
+                viewer.camera.update_proj();
+                break;
             case 'W':
-                      viewer.wireframe = !viewer.wireframe; break;
+                viewer.wireframe = !viewer.wireframe;
+                break;
             case 'C':
-                      viewer.cull_face = !viewer.cull_face; break;
+                viewer.cull_face = !viewer.cull_face;
+                break;
             case 'A':
-                      viewer.draw_axes = !viewer.draw_axes; break;
+                viewer.draw_axes = !viewer.draw_axes;
+                break;
             case 'M':
-                      if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED) == GLFW_TRUE) {
-                          glfwRestoreWindow(window);
-                      } else {
-                          glfwMaximizeWindow(window);
-                      }
-                      break;
-            case 'F':
-                      {
-                          int* backup = viewer._fullscreen_backup;
-                          if (viewer._fullscreen) {
-                              glfwSetWindowMonitor(window, nullptr,
-                                      backup[0], backup[1], backup[2], backup[3], 0);
-                              viewer._fullscreen = false;
-                          } else {
-                              glfwGetWindowPos(window, &backup[0],
-                                      &backup[1] );
-                              glfwGetWindowSize(window, &backup[2],
-                                      &backup[3] );
-                              const GLFWvidmode * mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-                              glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(),
-                                      0, 0, mode->width, mode->height, 0);
-                              viewer._fullscreen = true;
-                          }
-                      }
-                      break;
+                if (glfwGetWindowAttrib(window, GLFW_MAXIMIZED) == GLFW_TRUE) {
+                    glfwRestoreWindow(window);
+                } else {
+                    glfwMaximizeWindow(window);
+                }
+                break;
+            case 'F': {
+                int* backup = viewer._fullscreen_backup;
+                if (viewer._fullscreen) {
+                    glfwSetWindowMonitor(window, nullptr, backup[0], backup[1],
+                                         backup[2], backup[3], 0);
+                    viewer._fullscreen = false;
+                } else {
+                    glfwGetWindowPos(window, &backup[0], &backup[1]);
+                    glfwGetWindowSize(window, &backup[2], &backup[3]);
+                    const GLFWvidmode* mode =
+                        glfwGetVideoMode(glfwGetPrimaryMonitor());
+                    glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0,
+                                         mode->width, mode->height, 0);
+                    viewer._fullscreen = true;
+                }
+            } break;
             case 'H':
-                  std::cout <<
-R"HELP(Meshview (c) Alex Yu 2020
+                std::cout <<
+                    R"HELP(Meshview (c) Alex Yu 2020
 left click + drag:         rotate view
 shift + left click + drag: pan view
 middle click + drag:       pan view (alt)
 ctrl + left click + drag:  roll view
 Z:                         reset view
+O:                         toggle orthographic
 A:                         toggle axes
 W:                         toggle wireframe
 C:                         toggle backface culling
 M:                         toggle maximize window (may not work on some systems)
 F:                         toggle fullscreen window
 )HELP";
-                      break;
+                break;
         }
     }
 }
 
-void win_mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-
-    meshview::Viewer& viewer = *reinterpret_cast<meshview::Viewer*>(
-            glfwGetWindowUserPointer(window));
+void win_mouse_button_callback(GLFWwindow* window, int button, int action,
+                               int mods) {
+    meshview::Viewer& viewer =
+        *reinterpret_cast<meshview::Viewer*>(glfwGetWindowUserPointer(window));
     glfwGetCursorPos(window, &viewer._mouse_x, &viewer._mouse_y);
 
     if (action == GLFW_RELEASE) viewer._mouse_button = -1;
     if (viewer.on_mouse_button &&
-            !viewer.on_mouse_button(button, (meshview::input::Action)action, mods)) {
+        !viewer.on_mouse_button(button, (meshview::input::Action)action,
+                                mods)) {
         return;
     }
 #ifdef MESHVIEW_IMGUI
@@ -131,35 +133,34 @@ void win_mouse_button_callback(GLFWwindow* window, int button, int action, int m
 void win_mouse_move_callback(GLFWwindow* window, double x, double y) {
     bool prevent_default = false;
 
-    meshview::Viewer& viewer = *reinterpret_cast<meshview::Viewer*>(
-            glfwGetWindowUserPointer(window));
+    meshview::Viewer& viewer =
+        *reinterpret_cast<meshview::Viewer*>(glfwGetWindowUserPointer(window));
     double prex = viewer._mouse_x, prey = viewer._mouse_y;
     viewer._mouse_x = x, viewer._mouse_y = y;
-    if (viewer.on_mouse_move &&
-            !viewer.on_mouse_move(x, y)) {
+    if (viewer.on_mouse_move && !viewer.on_mouse_move(x, y)) {
         return;
     }
     if (viewer._mouse_button != -1) {
         if ((viewer._mouse_button == GLFW_MOUSE_BUTTON_LEFT &&
-            (viewer._mouse_mods & GLFW_MOD_SHIFT)) ||
-             viewer._mouse_button == GLFW_MOUSE_BUTTON_MIDDLE) {
+             (viewer._mouse_mods & GLFW_MOD_SHIFT)) ||
+            viewer._mouse_button == GLFW_MOUSE_BUTTON_MIDDLE) {
             // Pan
             viewer.camera.pan_with_mouse((float)(x - prex), (float)(y - prey));
         } else if (viewer._mouse_button == GLFW_MOUSE_BUTTON_LEFT &&
-            (viewer._mouse_mods & GLFW_MOD_CONTROL)) {
+                   (viewer._mouse_mods & GLFW_MOD_CONTROL)) {
             // Roll
             viewer.camera.roll_with_mouse((float)(x - prex), (float)(y - prey));
         } else if (viewer._mouse_button == GLFW_MOUSE_BUTTON_LEFT) {
-            viewer.camera.rotate_with_mouse((float)(x - prex), (float)(y - prey));
+            viewer.camera.rotate_with_mouse((float)(x - prex),
+                                            (float)(y - prey));
         }
     }
 }
 
 void win_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    meshview::Viewer& viewer = *reinterpret_cast<meshview::Viewer*>(
-            glfwGetWindowUserPointer(window));
-    if (viewer.on_scroll &&
-            !viewer.on_scroll(xoffset, yoffset)) {
+    meshview::Viewer& viewer =
+        *reinterpret_cast<meshview::Viewer*>(glfwGetWindowUserPointer(window));
+    if (viewer.on_scroll && !viewer.on_scroll(xoffset, yoffset)) {
         return;
     }
 #ifdef MESHVIEW_IMGUI
@@ -171,8 +172,8 @@ void win_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 
 // Window resize
 void win_framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    meshview::Viewer& viewer = *reinterpret_cast<meshview::Viewer*>(
-            glfwGetWindowUserPointer(window));
+    meshview::Viewer& viewer =
+        *reinterpret_cast<meshview::Viewer*>(glfwGetWindowUserPointer(window));
     viewer.camera.aspect = (float)width / (float)height;
     viewer.camera.update_proj();
     glViewport(0, 0, width, height);
@@ -202,12 +203,11 @@ Viewer::Viewer() : _fullscreen(false) {
     light_pos << 12.f, 10.f, 20.f;
 }
 
-Viewer::~Viewer() {
-    glfwTerminate();
-}
+Viewer::~Viewer() { glfwTerminate(); }
 
 void Viewer::show() {
-    GLFWwindow* window = glfwCreateWindow(_width, _height, "meshview", NULL, NULL);
+    GLFWwindow* window =
+        glfwCreateWindow(_width, _height, "meshview", NULL, NULL);
     if (!window) {
         glfwTerminate();
         std::cerr << "GLFW window creation failed\n";
@@ -248,9 +248,10 @@ void Viewer::show() {
 
     // Compile shaders on-the-fly
     internal::Shader shader_mesh(MESH_VERTEX_SHADER, MESH_FRAGMENT_SHADER);
-    internal::Shader shader_mesh_vert_color(
-            MESH_VERTEX_SHADER_VERT_COLOR, MESH_FRAGMENT_SHADER_VERT_COLOR);
-    internal::Shader shader_pc(POINTCLOUD_VERTEX_SHADER, POINTCLOUD_FRAGMENT_SHADER);
+    internal::Shader shader_mesh_vert_color(MESH_VERTEX_SHADER_VERT_COLOR,
+                                            MESH_FRAGMENT_SHADER_VERT_COLOR);
+    internal::Shader shader_pc(POINTCLOUD_VERTEX_SHADER,
+                               POINTCLOUD_FRAGMENT_SHADER);
 
     // Construct axes object
     PointCloud axes(Eigen::template Map<const Points>{axes_verts, 6, 3},
@@ -280,8 +281,9 @@ void Viewer::show() {
         shader.set_vec3("light.ambient", light_color_ambient);
         shader.set_vec3("light.diffuse", light_color_diffuse);
         shader.set_vec3("light.specular", light_color_specular);
-        shader.set_vec3("light.position",
-                (camera.view.inverse() * light_pos.homogeneous()).head<3>());
+        shader.set_vec3(
+            "light.position",
+            (camera.view.inverse() * light_pos.homogeneous()).head<3>());
         shader.set_vec3("viewPos", camera.get_pos());
     };
 
@@ -357,7 +359,8 @@ void Viewer::show() {
     if (on_close) on_close();
 
     for (auto& mesh : meshes) {
-        mesh->free_bufs(); // Delete any existing buffers to prevent memory leak
+        mesh->free_bufs();  // Delete any existing buffers to prevent memory
+                            // leak
     }
 
 #ifdef MESHVIEW_IMGUI
@@ -369,44 +372,44 @@ void Viewer::show() {
     glfwDestroyWindow(window);
 }
 
-Mesh& Viewer::add_cube(const Eigen::Ref<const Vector3f>& cen,
-                       float side_len,
+Mesh& Viewer::add_cube(const Eigen::Ref<const Vector3f>& cen, float side_len,
                        const Eigen::Ref<const Vector3f>& color) {
     Mesh cube = Mesh::Cube();
     cube.verts_pos().rowwise() += cen.transpose();
     cube.verts_pos() *= side_len;
     return add_mesh(std::move(cube))
         .add_texture(color[0], color[1], color[2])
-        .template add_texture<Texture::TYPE_SPECULAR>(color[0], color[1], color[2]);
+        .template add_texture<Texture::TYPE_SPECULAR>(color[0], color[1],
+                                                      color[2]);
 }
 
-Mesh& Viewer::add_square(const Eigen::Ref<const Vector3f>& cen,
-                       float side_len,
-                       const Eigen::Ref<const Vector3f>& color) {
+Mesh& Viewer::add_square(const Eigen::Ref<const Vector3f>& cen, float side_len,
+                         const Eigen::Ref<const Vector3f>& color) {
     Mesh sqr = Mesh::Square();
     sqr.verts_pos().rowwise() += cen.transpose();
     sqr.verts_pos() *= side_len;
     return add_mesh(std::move(sqr))
         .add_texture(color[0], color[1], color[2])
-        .template add_texture<Texture::TYPE_SPECULAR>(color[0], color[1], color[2]);
+        .template add_texture<Texture::TYPE_SPECULAR>(color[0], color[1],
+                                                      color[2]);
 }
 
-Mesh& Viewer::add_sphere(const Eigen::Ref<const Vector3f>& cen,
-                       float radius,
-                       const Eigen::Ref<const Vector3f>& color,
-                       int rings, int sectors) {
+Mesh& Viewer::add_sphere(const Eigen::Ref<const Vector3f>& cen, float radius,
+                         const Eigen::Ref<const Vector3f>& color, int rings,
+                         int sectors) {
     Mesh sph = Mesh::Sphere(rings, sectors);
     sph.verts_pos().rowwise() += cen.transpose();
     sph.verts_pos() *= radius;
     return add_mesh(std::move(sph))
         .set_shininess(32.f)
         .add_texture(color[0], color[1], color[2])
-        .template add_texture<Texture::TYPE_SPECULAR>(color[0], color[1], color[2]);
+        .template add_texture<Texture::TYPE_SPECULAR>(color[0], color[1],
+                                                      color[2]);
 }
 
 PointCloud& Viewer::add_line(const Eigen::Ref<const Vector3f>& a,
-                     const Eigen::Ref<const Vector3f>& b,
-                     const Eigen::Ref<const Vector3f>& color) {
+                             const Eigen::Ref<const Vector3f>& b,
+                             const Eigen::Ref<const Vector3f>& color) {
     return add_point_cloud(PointCloud::Line(a, b, color));
 }
 

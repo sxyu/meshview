@@ -78,7 +78,7 @@ class Camera {
                                                                     0.f),
                     const Vector3f& world_up = Eigen::Vector3f(0.f, 1.f, 0.f),
                     float dist_to_center = 3.f, float yaw = -M_PI / 2,
-                    float pitch = 0.0f, float roll = 0.0f,
+                    float pitch = 0.0f, float roll = 0.0f, bool ortho = false,
                     float fovy = M_PI / 4.f, float aspect = 5.f / 3.f,
                     float z_close = 0.01f, float z_far = 1e3f);
 
@@ -112,7 +112,9 @@ class Camera {
     float pan_speed = .0015f, rotate_speed = .008f, scroll_factor = 1.1f;
 
     // * Projection parameters
-    // Field of view, aspect ratio
+    // Orthographic proj?
+    bool ortho;
+    // Field of view aspect ratio
     float fovy, aspect;
     // Clip distances
     float z_close, z_far;
