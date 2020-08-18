@@ -375,8 +375,8 @@ void Viewer::show() {
 Mesh& Viewer::add_cube(const Eigen::Ref<const Vector3f>& cen, float side_len,
                        const Eigen::Ref<const Vector3f>& color) {
     Mesh cube = Mesh::Cube();
-    cube.verts_pos().rowwise() += cen.transpose();
     cube.verts_pos() *= side_len;
+    cube.verts_pos().rowwise() += cen.transpose();
     return add_mesh(std::move(cube))
         .add_texture(color[0], color[1], color[2])
         .template add_texture<Texture::TYPE_SPECULAR>(color[0], color[1],
@@ -386,8 +386,8 @@ Mesh& Viewer::add_cube(const Eigen::Ref<const Vector3f>& cen, float side_len,
 Mesh& Viewer::add_square(const Eigen::Ref<const Vector3f>& cen, float side_len,
                          const Eigen::Ref<const Vector3f>& color) {
     Mesh sqr = Mesh::Square();
-    sqr.verts_pos().rowwise() += cen.transpose();
     sqr.verts_pos() *= side_len;
+    sqr.verts_pos().rowwise() += cen.transpose();
     return add_mesh(std::move(sqr))
         .add_texture(color[0], color[1], color[2])
         .template add_texture<Texture::TYPE_SPECULAR>(color[0], color[1],
@@ -398,8 +398,8 @@ Mesh& Viewer::add_sphere(const Eigen::Ref<const Vector3f>& cen, float radius,
                          const Eigen::Ref<const Vector3f>& color, int rings,
                          int sectors) {
     Mesh sph = Mesh::Sphere(rings, sectors);
-    sph.verts_pos().rowwise() += cen.transpose();
     sph.verts_pos() *= radius;
+    sph.verts_pos().rowwise() += cen.transpose();
     return add_mesh(std::move(sph))
         .set_shininess(32.f)
         .add_texture(color[0], color[1], color[2])
