@@ -429,14 +429,23 @@ void Mesh::load_basic_obj(const std::string& path) {
                 attrs_per_vert = cnt;
             }
         } else if (line[0] == 'f') {
-            std::stringstream ss(line.substr(2));
-            Index idx;
-            size_t cnt = 0;
-            while (ss >> idx) {
-                ++cnt;
-                tmp_faces.push_back(idx - 1);
+            size_t i = 2, j = 0;
+            while (i < line.size() && std::isspace(i)) ++i;
+            std::string num;
+            for (; i < line.size(); ++i) {
+                if (line[i] == '/') {
+                    ++j;
+                } else if (std::isspace(line[i])) {
+                    tmp_faces.push_back((Index)std::atoll(num.c_str()));
+                    j = 0;
+                    num.clear();
+                } else if (j == 0) {
+                    num.push_back(line[i]);
+                }
             }
-            _MESHVIEW_ASSERT_EQ(cnt, 3);
+            if (num.size()) {
+                tmp_faces.push_back((Index)std::atoll(num.c_str()));
+            }
         }
     }
     if (attrs_per_vert == 6) {
@@ -516,10 +525,10 @@ void PointCloud::update(bool force_init) {
     glBindVertexArray(VAO);
     // load data into vertex buffers
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // A great thing about structs is that their memory layout is sequential for
-    // all its items. The effect is that we can simply pass a pointer to the
-    // struct and it translates perfectly to a glm::vec3/2 array which again
-    // translates to 3/2 floats which translates to a byte array.
+    // A great thing about structs is that their memory layout is sequential
+    // for all its items. The effect is that we can simply pass a pointer to
+    // the struct and it translates perfectly to a glm::vec3/2 array which
+    // again translates to 3/2 floats which translates to a byte array.
     glBufferData(GL_ARRAY_BUFFER, BUF_SZ, (GLvoid*)data.data(), GL_STATIC_DRAW);
 
     // set the vertex attribute pointers
@@ -554,7 +563,8 @@ void PointCloud::draw(Index shader_id, const Camera& camera) {
     glDrawArrays(lines ? GL_LINES : GL_POINTS, 0, (GLsizei)data.rows());
     glBindVertexArray(0);
 
-    // Always good practice to set everything back to defaults once configured.
+    // Always good practice to set everything back to defaults once
+    // configured.
     glActiveTexture(GL_TEXTURE0);
 }
 
