@@ -436,7 +436,7 @@ void Mesh::load_basic_obj(const std::string& path) {
                 if (line[i] == '/') {
                     ++j;
                 } else if (std::isspace(line[i])) {
-                    tmp_faces.push_back((Index)std::atoll(num.c_str()));
+                    tmp_faces.push_back((Index)std::atoll(num.c_str()) - 1);
                     j = 0;
                     num.clear();
                 } else if (j == 0) {
@@ -444,7 +444,7 @@ void Mesh::load_basic_obj(const std::string& path) {
                 }
             }
             if (num.size()) {
-                tmp_faces.push_back((Index)std::atoll(num.c_str()));
+                tmp_faces.push_back((Index)std::atoll(num.c_str()) - 1);
             }
         }
     }
