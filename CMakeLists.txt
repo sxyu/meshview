@@ -6,6 +6,9 @@ endif()
 if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
+if (POLICY CMP0069)
+    cmake_policy(SET CMP0069 NEW)
+endif (POLICY CMP0069)
 if (POLICY CMP0072)
     cmake_policy(SET CMP0072 NEW)
 endif (POLICY CMP0072)
@@ -23,6 +26,7 @@ option( MESHVIEW_USE_SYSTEM_GLFW
 option( MESHVIEW_BUILD_IMGUI "Build with Dear ImGui integrated GUI" ON )
 option( MESHVIEW_BUILD_EXAMPLE "Build the example program" ON )
 option( MESHVIEW_BUILD_INSTALL "Build the install target" ON )
+option( MESHVIEW_BUILD_PYTHON "Build Python bindings" OFF )
 option( MESHVIEW_USE_FFAST_MATH "Use -ffast-math" OFF )
 
 set( CMAKE_CXX_STACK_SIZE "10000000" )
@@ -174,6 +178,12 @@ endif()
 
 find_package(Threads REQUIRED)
 
+# Optional pybind11
+find_package( pybind11 )
+if (NOT pybind11_FOUND AND ${MESHVIEW_BUILD_PYTHON})
+    message( WARNING "pybind11 not found, Python binding is disabled. Install from https://github.com/pybind/pybind11" )
+endif()
+
 add_library( ${PROJ_LIB_NAME} STATIC ${MESHVIEW_SOURCES}
     ${IMGUI_SOURCES} ${MESHVIEW_VENDOR_SOURCES} )
 
@@ -233,6 +243,19 @@ if (MESHVIEW_BUILD_EXAMPLE)
     target_link_libraries( example ${PROJ_LIB_NAME} )
     set_target_properties( example PROPERTIES OUTPUT_NAME "meshview-example" )
 endif()
+
+if (${pybind11_FOUND} AND ${MESHVIEW_BUILD_PYTHON})
+    message(STATUS "Building Python bindings")
+    pybind11_add_module(pymeshview SHARED ${MESHVIEW_SOURCES} ${IMGUI_SOURCES} ${MESHVIEW_VENDOR_SOURCES} pybind.cpp)
+    set_target_properties(pymeshview PROPERTIES OUTPUT_NAME meshview)
+    target_include_directories(
+        pymeshview PUBLIC
+        $<BUILD_INTERFACE:${INCLUDE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    )
+    target_link_libraries(pymeshview PRIVATE ${DEPENDENCIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
+endif ()
 
 if(WIN32)
     add_definitions(-DNOMINMAX -D_USE_MATH_DEFINES)
