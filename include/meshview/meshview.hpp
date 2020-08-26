@@ -156,16 +156,16 @@ class Mesh {
     // normals: normal vectors per point.
     // if not specified, will compute automatically on update
     explicit Mesh(const Eigen::Ref<const Points>& pos,
-                  const Eigen::Ref<const Triangles>& tri_faces = Triangles(),
-                  const Eigen::Ref<const Points>& rgb = Points(),
+                  const Eigen::Ref<const Triangles>& tri_faces,
+                  const Eigen::Ref<const Points>& rgb,
                   const Eigen::Ref<const Points>& normals = Points());
     // Construct with given points, faces, and (optionally) rgb color for all
     // vertices r,g,b: the color given to all vertices (ignored if you call
     // set_tex_coords later) normals: normal vectors per point. if not
     // specified, will compute automatically on update
     explicit Mesh(const Eigen::Ref<const Points>& pos,
-                  const Eigen::Ref<const Triangles>& tri_faces, float r,
-                  float g, float b,
+                  const Eigen::Ref<const Triangles>& tri_faces = Triangles(),
+                  float r = 1.f, float g = 1.f, float b = 1.f,
                   const Eigen::Ref<const Points>& normals = Points());
     ~Mesh();
 

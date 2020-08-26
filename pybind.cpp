@@ -234,8 +234,8 @@ PYBIND11_MODULE(meshview, m) {
                const Eigen::Ref<const Points>& normals) {
                 self.add_mesh(verts, tri_faces, rgb, normals);
             },
-            py::arg("verts"), py::arg("tri_faces") = Triangles(),
-            py::arg("rgb") = Points(), py::arg("normals") = Points(),
+            py::arg("verts"), py::arg("tri_faces"), py::arg("rgb"),
+            py::arg("normals") = Points(),
             py::return_value_policy::reference_internal)
         .def(
             "add_mesh",
@@ -244,8 +244,9 @@ PYBIND11_MODULE(meshview, m) {
                float b, const Eigen::Ref<const Points>& normals) {
                 self.add_mesh(verts, tri_faces, r, g, b, normals);
             },
-            py::arg("verts"), py::arg("tri_faces"), py::arg("r"), py::arg("g"),
-            py::arg("b"), py::arg("normals") = Points(),
+            py::arg("verts"), py::arg("tri_faces") = Triangles(),
+            py::arg("r") = 1.f, py::arg("g") = 1.f, py::arg("b") = 1.f,
+            py::arg("normals") = Points(),
             py::return_value_policy::reference_internal)
         .def(
             "add_point_cloud",
