@@ -1,5 +1,4 @@
 import meshview
-from meshview import imgui as gui
 
 v = meshview.Viewer()
 v.draw_axes = False
