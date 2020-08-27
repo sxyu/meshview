@@ -111,15 +111,21 @@ PYBIND11_MODULE(meshview, m) {
         .def_property(
             "verts_pos",
             [](Mesh& self) -> Eigen::Ref<Points> { return self.verts_pos(); },
-            [](Mesh& self, Eigen::Ref<Points> val) { self.verts_pos() = val; })
+            [](Mesh& self, Eigen::Ref<const Points> val) {
+                self.verts_pos() = val;
+            })
         .def_property(
             "verts_rgb",
             [](Mesh& self) -> Eigen::Ref<Points> { return self.verts_rgb(); },
-            [](Mesh& self, Eigen::Ref<Points> val) { self.verts_rgb() = val; })
+            [](Mesh& self, Eigen::Ref<const Points> val) {
+                self.verts_rgb() = val;
+            })
         .def_property(
             "verts_norm",
             [](Mesh& self) -> Eigen::Ref<Points> { return self.verts_norm(); },
-            [](Mesh& self, Eigen::Ref<Points> val) { self.verts_norm() = val; })
+            [](Mesh& self, Eigen::Ref<const Points> val) {
+                self.verts_norm() = val;
+            })
         .def_readwrite("faces", &Mesh::faces)
         .def_readwrite("enabled", &Mesh::enabled)
         .def_readwrite("shininess", &Mesh::shininess)
@@ -161,7 +167,7 @@ PYBIND11_MODULE(meshview, m) {
             [](PointCloud& self) -> Eigen::Ref<Points> {
                 return self.verts_pos();
             },
-            [](PointCloud& self, Eigen::Ref<Points> val) {
+            [](PointCloud& self, Eigen::Ref<const Points> val) {
                 self.verts_pos() = val;
             })
         .def_property(
@@ -169,7 +175,7 @@ PYBIND11_MODULE(meshview, m) {
             [](PointCloud& self) -> Eigen::Ref<Points> {
                 return self.verts_rgb();
             },
-            [](PointCloud& self, Eigen::Ref<Points> val) {
+            [](PointCloud& self, Eigen::Ref<const Points> val) {
                 self.verts_rgb() = val;
             })
         .def_readwrite("enabled", &PointCloud::enabled)
