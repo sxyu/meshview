@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <Eigen/Geometry>
 
 #include "meshview/util.hpp"
@@ -167,6 +168,11 @@ void Mesh::update(bool force_init) {
     static const size_t VERT_INDICES = data.ColsAtCompileTime;
     static const size_t VERT_SZ = VERT_INDICES * SCALAR_SZ;
 
+    if (glfwGetCurrentContext() == nullptr) {
+        // No OpenGL context is created, exit
+        return;
+    }
+
     // Auto normals
     if (_auto_normals) {
         util::estimate_normals(verts_pos(), faces, data.rightCols<3>());
@@ -225,10 +231,6 @@ void Mesh::update(bool force_init) {
     glBindVertexArray(VAO);
     // load data into vertex buffers
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // A great thing about structs is that their memory layout is sequential for
-    // all its items. The effect is that we can simply pass a pointer to the
-    // struct and it translates perfectly to a glm::vec3/2 array which again
-    // translates to 3/2 floats which translates to a byte array.
     glBufferData(GL_ARRAY_BUFFER, BUF_SZ, (GLvoid*)vert_data_ptr,
                  GL_STATIC_DRAW);
 
@@ -513,6 +515,11 @@ void PointCloud::update(bool force_init) {
     static const size_t RGB_OFFSET = 3 * SCALAR_SZ;
     static const size_t VERT_INDICES = data.ColsAtCompileTime;
     static const size_t VERT_SZ = VERT_INDICES * SCALAR_SZ;
+
+    if (glfwGetCurrentContext() == nullptr) {
+        // No OpenGL context is created, exit
+        return;
+    }
 
     const size_t BUF_SZ = data.size() * SCALAR_SZ;
 
