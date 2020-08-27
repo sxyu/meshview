@@ -223,13 +223,13 @@ PYBIND11_MODULE(meshview, m) {
         .def(py::init<>())
         .def(
             "add_mesh",
-            [](Viewer& self, const std::string& path) {
+            [](Viewer& self, const std::string& path) -> Mesh& {
                 return self.add_mesh(path);
             },
             py::arg("path"), py::return_value_policy::reference_internal)
         .def(
             "add_mesh",
-            [](Viewer& self, int num_verts, int num_faces) {
+            [](Viewer& self, int num_verts, int num_faces) -> Mesh& {
                 return self.add_mesh(num_verts, num_faces);
             },
             py::arg("num_verts"), py::arg("num_faces") = 0,
@@ -239,7 +239,7 @@ PYBIND11_MODULE(meshview, m) {
             [](Viewer& self, const Eigen::Ref<const Points>& verts,
                const Eigen::Ref<const Triangles>& tri_faces,
                const Eigen::Ref<const Points>& rgb,
-               const Eigen::Ref<const Points>& normals) {
+               const Eigen::Ref<const Points>& normals) -> Mesh& {
                 return self.add_mesh(verts, tri_faces, rgb, normals);
             },
             py::arg("verts"), py::arg("tri_faces"), py::arg("rgb"),
@@ -249,7 +249,7 @@ PYBIND11_MODULE(meshview, m) {
             "add_mesh",
             [](Viewer& self, const Eigen::Ref<const Points>& verts,
                const Eigen::Ref<const Triangles>& tri_faces, float r, float g,
-               float b, const Eigen::Ref<const Points>& normals) {
+               float b, const Eigen::Ref<const Points>& normals) -> Mesh& {
                 return self.add_mesh(verts, tri_faces, r, g, b, normals);
             },
             py::arg("verts"), py::arg("tri_faces") = Triangles(),
@@ -258,14 +258,14 @@ PYBIND11_MODULE(meshview, m) {
             py::return_value_policy::reference_internal)
         .def(
             "add_point_cloud",
-            [](Viewer& self, int num_verts) {
+            [](Viewer& self, int num_verts) -> PointCloud& {
                 return self.add_point_cloud(num_verts);
             },
             py::arg("num_verts"), py::return_value_policy::reference_internal)
         .def(
             "add_point_cloud",
             [](Viewer& self, const Eigen::Ref<const Points>& verts,
-               const Eigen::Ref<const Points>& rgb) {
+               const Eigen::Ref<const Points>& rgb) -> PointCloud& {
                 return self.add_point_cloud(verts, rgb);
             },
             py::arg("verts"), py::arg("rgb"),
@@ -273,8 +273,9 @@ PYBIND11_MODULE(meshview, m) {
         .def(
             "add_point_cloud",
             [](Viewer& self, const Eigen::Ref<const Points>& verts, float r,
-               float g,
-               float b) { return self.add_point_cloud(verts, r, g, b); },
+               float g, float b) -> PointCloud& {
+                return self.add_point_cloud(verts, r, g, b);
+            },
             py::arg("verts"), py::arg("r") = 1.f, py::arg("g") = 1.f,
             py::arg("b") = 1.f, py::return_value_policy::reference_internal)
         .def("add_line", &Viewer::add_line, py::arg("a"), py::arg("b"),
