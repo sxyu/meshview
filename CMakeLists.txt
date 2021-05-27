@@ -254,6 +254,12 @@ if (${pybind11_FOUND} AND ${MESHVIEW_BUILD_PYTHON})
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     )
+    if (MESHVIEW_BUILD_IMGUI)
+        target_include_directories(
+            pymeshview PUBLIC
+            $<BUILD_INTERFACE:${IMGUI_DIR}>
+        )
+    endif()
     target_link_libraries(pymeshview PRIVATE ${DEPENDENCIES} ${CMAKE_THREAD_LIBS_INIT} ${CMAKE_DL_LIBS})
 endif ()
 
