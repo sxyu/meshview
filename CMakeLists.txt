@@ -22,7 +22,7 @@ set(MESHVIEW_VERSION ${MESHVIEW_VERSION_MAJOR}.${MESHVIEW_VERSION_MINOR}.${MESHV
 option( MESHVIEW_USE_SYSTEM_EIGEN
     "Use system Eigen. If false, please set EIGEN_INCLUDE_DIR manually" ON )
 option( MESHVIEW_USE_SYSTEM_GLFW
-    "Use system glfw rather than the included glfw submodule if available" ON )
+    "Use system glfw rather than the included glfw submodule if available" OFF )
 option( MESHVIEW_BUILD_IMGUI "Build with Dear ImGui integrated GUI" ON )
 option( MESHVIEW_BUILD_EXAMPLE "Build the example program" ON )
 option( MESHVIEW_BUILD_INSTALL "Build the install target" ON )
